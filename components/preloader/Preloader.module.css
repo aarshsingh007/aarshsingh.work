@@ -1,0 +1,296 @@
+/* ==========================================================================
+   Preloader — "A World of Hello"
+   ========================================================================== */
+
+.root {
+  --greeting-size: clamp(4.75rem, 19vw, 17.5rem);
+  --gutter: clamp(1rem, 3.2vw, 2.5rem);
+
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+/* No JS ever hydrated? Get out of the way after 10s. */
+.root:not([data-hydrated]) {
+  animation: preloader-failsafe 0.6s ease 10s forwards;
+}
+
+@keyframes preloader-failsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+/* Lime band revealed between the paper panel and the site during the exit. */
+.band {
+  position: absolute;
+  inset: 0;
+  background: var(--color-lime);
+}
+
+.panel {
+  position: absolute;
+  inset: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+.inner {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+  padding: var(--gutter);
+  padding-top: max(var(--gutter), env(safe-area-inset-top));
+  padding-bottom: max(var(--gutter), env(safe-area-inset-bottom));
+}
+
+/* ---------- top bar ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  font-size: clamp(0.6875rem, 0.62rem + 0.2vw, 0.8125rem);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.brand sup {
+  font-size: 0.65em;
+  margin-left: 0.1em;
+  vertical-align: 0.5em;
+  line-height: 0;
+}
+
+.meta {
+  color: color-mix(in srgb, var(--color-ink) 62%, transparent);
+}
+
+/* ---------- stage ---------- */
+
+.stage {
+  position: absolute;
+  inset: 0;
+  padding: var(--gutter);
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+}
+
+.greetingBlock {
+  display: grid;
+  justify-items: center;
+  gap: clamp(1rem, 2.4vw, 1.75rem);
+  width: 100%;
+}
+
+/* Mask holds every script on the same optical centre line. */
+.wordMask {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: calc(var(--greeting-size) * 1.32);
+  overflow: hidden;
+}
+
+.word {
+  grid-area: 1 / 1;
+  display: block;
+  max-width: 100%;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+  text-align: center;
+  will-change: transform, opacity, filter;
+}
+
+.word[lang="ja"],
+.word[lang="ko"],
+.word[lang="ar"],
+.word[lang="hi"] {
+  letter-spacing: 0;
+}
+
+/* ---------- caption: language + sequence ---------- */
+
+.caption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1rem, 3vw, 2rem);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  font-size: clamp(0.75rem, 0.68rem + 0.25vw, 0.9375rem);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.langMask {
+  position: relative;
+  display: inline-grid;
+  overflow: hidden;
+  min-width: 8.5em;
+  padding-block: 0.2em;
+  justify-items: end;
+}
+
+.langName {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55em;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: var(--color-ink);
+  flex: none;
+}
+
+.counter {
+  min-width: 8.5em;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--color-ink) 55%, transparent);
+}
+
+.counterSep {
+  margin-inline: 0.35em;
+  color: var(--color-ink);
+}
+
+/* ---------- welcome ---------- */
+
+.welcome {
+  display: grid;
+  justify-items: center;
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  width: 100%;
+  text-align: center;
+}
+
+.welcomeTitle {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 0.24em;
+  margin: 0;
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  font-size: clamp(2.75rem, 9vw, 9rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+}
+
+.lineMask {
+  display: inline-block;
+  overflow: hidden;
+  padding-block: 0.06em 0.1em;
+}
+
+.lineInner {
+  display: inline-block;
+}
+
+.accentWord {
+  font-family: var(--font-instrument-serif), serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  padding-right: 0.06em;
+}
+
+.welcomeSub {
+  margin: 0;
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  font-size: clamp(0.75rem, 0.66rem + 0.35vw, 1rem);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.highlight {
+  background: var(--color-lime);
+  color: var(--color-ink);
+  padding: 0.25em 0.45em;
+  border-radius: 0.2em;
+}
+
+/* Skip — hidden until it receives keyboard focus. */
+.skip {
+  position: absolute;
+  left: var(--gutter);
+  bottom: var(--gutter);
+  z-index: 2;
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(0.5rem);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.skip:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 599px) {
+  .langMask,
+  .counter {
+    min-width: 7em;
+  }
+}
+
+@media (max-height: 480px) and (orientation: landscape) {
+  .root {
+    --greeting-size: clamp(3.5rem, 24vh, 10rem);
+  }
+}

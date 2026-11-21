@@ -1,0 +1,990 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Tokens — three colours only.
+   ========================================================================== */
+
+:root {
+  --bg: #ffffff;
+  --ink: #111111;
+  --lime: #d8ff67; /* fill/highlight behind ink text only — never text colour */
+
+  /* Preloader palette (same three colours) */
+  --color-paper: var(--bg);
+  --color-ink: var(--ink);
+  --color-lime: var(--lime);
+
+  /* Cover colours (Selected Work sheets + Play/Exploration cards). */
+  --cover-pink: #ea33a7;
+  --cover-orange: #e87537;
+  --cover-green: #5bb17d;
+  --cover-blue: #5084e3;
+  --cover-rose: #e65fac;
+  --cover-plum: #2a142f;
+
+  --nav-h: 4rem;
+  /* One vertical rhythm for every section after the hero. */
+  --section-y: clamp(4.5rem, 9vw, 8rem);
+  --gutter: clamp(1rem, 3.2vw, 2.5rem);
+
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-ink: var(--ink);
+  --color-lime: var(--lime);
+
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--nav-h);
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--lime);
+  color: var(--ink);
+}
+
+/* Visible black focus ring everywhere. */
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* Already seen this session: never paint the preloader overlay. */
+html[data-preloader="skip"] [data-preloader-root] {
+  display: none;
+}
+
+/* Custom cursor active: hide the native one (fine pointers only). */
+html.has-custom-cursor,
+html.has-custom-cursor * {
+  cursor: none !important;
+}
+
+/* ==========================================================================
+   Badge rotation
+   ========================================================================== */
+
+@keyframes badge-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+.badge-spin {
+  animation: badge-spin 22s linear infinite;
+}
+
+.badge:hover .badge-spin {
+  animation-play-state: paused;
+}
+
+.badge > div {
+  transition: scale 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.badge:hover > div {
+  scale: 1.06;
+}
+
+/* ==========================================================================
+   Micro-interactions
+   ========================================================================== */
+
+/* Clock colon: soft one-second pulse. */
+@keyframes colon-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.clock-colon {
+  animation: colon-pulse 1s ease-in-out infinite;
+}
+
+/* Fixed nav: 0.25s colour change between transparent / white / ink (over Contact). */
+.site-nav {
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.site-nav[data-nav-theme="dark"] :focus-visible {
+  outline-color: #ffffff;
+}
+
+/* Nav link for the section in view keeps its underline drawn. */
+[aria-current="location"] > .nav-underline {
+  scale: 1 1;
+}
+
+/* Work sheet: the ↗ nudges 4px on hover / keyboard focus (no nudge under reduced motion). */
+.work-arrow {
+  transition: translate 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.group:is(:hover, :focus-visible) .work-arrow {
+  translate: 4px -4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group:is(:hover, :focus-visible) .work-arrow {
+    translate: none;
+  }
+}
+
+/* About copy: words ink in as the paragraph scrolls through (--p 0→1). */
+.ink-copy {
+  --p: 1;
+}
+
+.ink-word {
+  opacity: clamp(0.18, calc((var(--p) * (var(--n) + 4) - var(--i)) / 4), 1);
+}
+
+/* Lime marker behind the emphasis phrase, swept in over the last stretch of
+   the scroll; a background (not a box) so it flows across a line break. */
+.ink-mark {
+  background-image: linear-gradient(var(--lime), var(--lime));
+  background-repeat: no-repeat;
+  background-position: 0 88%;
+  background-size: calc(clamp(0, (var(--p) - 0.85) * 6.67, 1) * 100%) 52%;
+}
+
+/* ==========================================================================
+   Selected Work — stacking sheets (desktop, motion allowed)
+   ========================================================================== */
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .work-sheet {
+    position: sticky;
+    /* Just below the nav; each sheet sits a little lower so edges peek. */
+    top: calc(var(--nav-h) + 16px + var(--i, 0) * 14px);
+  }
+}
+
+/* ==========================================================================
+   Contact (theme set by CONTACT_THEME in data/site.ts)
+   ========================================================================== */
+
+.contact-section[data-theme="dark"] {
+  --c-bg: #111111;
+  --c-text: #ffffff;
+  --c-row: rgba(255, 255, 255, 0.07);
+  --c-muted: rgba(255, 255, 255, 0.6);
+  --c-line: rgba(255, 255, 255, 0.15);
+  --c-focus: #ffffff;
+}
+
+.contact-section[data-theme="light"] {
+  --c-bg: #f7f5f2;
+  --c-text: #111111;
+  --c-row: #edebe7;
+  --c-muted: rgba(17, 17, 17, 0.6);
+  --c-line: rgba(17, 17, 17, 0.15);
+  --c-focus: #111111;
+}
+
+.contact-section {
+  background: var(--c-bg);
+  color: var(--c-text);
+}
+
+.contact-section :focus-visible {
+  outline-color: var(--c-focus);
+}
+
+.contact-muted {
+  color: var(--c-muted);
+}
+
+.contact-row {
+  position: relative;
+  display: flex;
+  min-height: 60px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--c-row);
+  padding-inline: 1.25rem;
+  color: var(--c-text);
+  transition: color 0.35s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.contact-wipe {
+  position: absolute;
+  inset: 0;
+  background: var(--lime);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.35s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* Fill parked on the right edge when the pointer enters / leaves from the right. */
+.contact-row[data-from="right"] .contact-wipe {
+  clip-path: inset(0 0 0 100%);
+}
+
+/* Letter wave: each letter is a 1-line window over two stacked copies. */
+.contact-wave {
+  display: inline-flex;
+}
+
+.cw-cell {
+  display: inline-block;
+  height: 1.25em;
+  overflow: hidden;
+  line-height: 1.25em;
+}
+
+.cw-stack {
+  display: flex;
+  flex-direction: column;
+  transition: translate 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+  transition-delay: calc(var(--i) * 22ms);
+}
+
+/* Copied stamp */
+.contact-stamp {
+  position: absolute;
+  top: 50%;
+  right: 4.5rem;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: 6px;
+  background: #111111;
+  padding: 0.3em 0.7em;
+  color: var(--lime);
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-style: italic;
+  line-height: 1;
+  box-shadow: 0 0 0 2px #111111, 0 0 0 3.5px var(--lime);
+  animation: contact-stamp 1.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes contact-stamp {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) rotate(-18deg) scale(2.2);
+  }
+  12% {
+    opacity: 1;
+    transform: translateY(-50%) rotate(-9deg) scale(0.92);
+  }
+  20% {
+    transform: translateY(-50%) rotate(-10deg) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(-50%) rotate(-10deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-60%) rotate(-10deg) scale(1);
+  }
+}
+
+@keyframes contact-stamp-fade {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(-50%) rotate(-10deg);
+  }
+  15%,
+  80% {
+    opacity: 1;
+    transform: translateY(-50%) rotate(-10deg);
+  }
+}
+
+.contact-icon {
+  transition: translate 0.35s cubic-bezier(0.76, 0, 0.24, 1), rotate 0.35s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* Fine pointers: lime wipes left → right, text/icon go black, icon nudges. */
+@media (hover: hover) and (pointer: fine) {
+  .contact-row[data-enabled]:is(:hover, :has(:focus-visible)) {
+    color: #111111;
+  }
+
+  .contact-row[data-enabled]:is(:hover, :has(:focus-visible)) .contact-muted {
+    color: rgba(17, 17, 17, 0.7);
+  }
+
+  .contact-row[data-enabled]:is([data-on], :has(:focus-visible)) .contact-wipe {
+    clip-path: inset(0 0 0 0);
+  }
+
+  .contact-row[data-enabled]:is(:hover, :has(:focus-visible)) .cw-stack {
+    translate: 0 -50%;
+  }
+
+  .contact-row[data-enabled]:is(:hover, :has(:focus-visible)) .contact-icon {
+    translate: 4px 0;
+    rotate: -8deg;
+  }
+}
+
+/* Touch: no wipe — a plain lime fill while pressed. */
+@media (hover: none), (pointer: coarse) {
+  .contact-row[data-enabled]:active {
+    background: var(--lime);
+    color: #111111;
+  }
+
+  .contact-row[data-enabled]:active .contact-muted {
+    color: rgba(17, 17, 17, 0.7);
+  }
+}
+
+/* ==========================================================================
+   Play — photo board
+   ========================================================================== */
+
+.pb-board {
+  --pw: 120px; /* photo card width (W) */
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(17, 17, 17, 0.12);
+  border-radius: 20px;
+  background-color: var(--play-bg);
+  /* Faint repeating dot grid. */
+  background-image: radial-gradient(rgba(17, 17, 17, 0.14) 1px, transparent 1.4px);
+  background-size: 22px 22px;
+}
+
+@media (min-width: 768px) {
+  .pb-board {
+    --pw: clamp(130px, 14vw, 220px);
+  }
+}
+
+/* Before hydration / without JS: a simple wrapped grid. */
+.pb-board-static {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+}
+
+.pb-board-live {
+  height: 560px;
+}
+
+@media (min-width: 768px) {
+  .pb-board-live {
+    height: clamp(520px, 80vh, 760px);
+  }
+}
+
+.pb-item {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.pb-item:active {
+  cursor: grabbing;
+}
+
+.pb-item-photo {
+  border-radius: calc(var(--pw) * 0.08);
+}
+
+.pb-item-note {
+  border-radius: 6px;
+}
+
+.pb-photo {
+  width: var(--pw);
+  padding: calc(var(--pw) * 0.053);
+  border-radius: calc(var(--pw) * 0.08);
+  color: var(--play-ink);
+}
+
+.pb-media {
+  position: relative;
+  overflow: hidden;
+  border-radius: calc(var(--pw) * 0.027);
+}
+
+.pb-photo-label {
+  position: absolute;
+  top: 7%;
+  left: 7%;
+  font-size: max(10px, calc(var(--pw) * 0.06));
+  font-weight: 500;
+  color: var(--cover-plum);
+}
+
+.pb-glyph {
+  position: absolute;
+  left: -4%;
+  bottom: calc(var(--pw) * -0.12);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  font-size: calc(var(--pw) * 0.62);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--cover-plum);
+}
+
+.pb-caption {
+  padding-top: calc(var(--pw) * 0.05);
+  font-size: max(11px, calc(var(--pw) * 0.055));
+  line-height: 1.25;
+}
+
+/* Sticky note: lime, square-ish, black text. */
+.pb-note {
+  display: flex;
+  width: calc(var(--pw) * 0.9);
+  aspect-ratio: 1 / 0.95;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 6px;
+  background: var(--lime);
+  padding: calc(var(--pw) * 0.08);
+  color: #111111;
+}
+
+.pb-note-value {
+  font-family: var(--font-instrument-serif), serif;
+  font-size: calc(var(--pw) * 0.36);
+  line-height: 0.9;
+}
+
+.pb-note-label {
+  font-size: max(10px, calc(var(--pw) * 0.065));
+  line-height: 1.2;
+}
+
+/* ==========================================================================
+   "Available for work" pill (nav)
+   ========================================================================== */
+
+/* display comes from utilities (hidden lg:inline-flex / inline-flex) so `hidden` can win. */
+.avail {
+  position: relative;
+  isolation: isolate;
+  min-height: 2.25rem;
+  align-items: center;
+  gap: 0.55rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: 999px;
+  padding: 0 0.85rem 0 0.7rem;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: border-color 0.35s cubic-bezier(0.76, 0, 0.24, 1), color 0.25s ease, scale 0.2s ease;
+}
+
+.avail-fill {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--lime);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.4s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.avail-dot {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: #3fae4f; /* "online" green, readable on white and on lime */
+}
+
+/* Soft pulse ring. */
+.avail-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #3fae4f;
+  animation: avail-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes avail-ping {
+  0% {
+    opacity: 0.6;
+    scale: 1;
+  }
+  80%,
+  100% {
+    opacity: 0;
+    scale: 2.6;
+  }
+}
+
+/* Two stacked labels; hover rolls to the second. */
+.avail-text {
+  display: inline-block;
+  height: 1.2em;
+  overflow: hidden;
+  line-height: 1.2;
+}
+
+.avail-roll {
+  display: flex;
+  flex-direction: column;
+  transition: translate 0.4s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.avail-arrow {
+  display: inline-block;
+  transition: translate 0.4s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.avail:is(:hover, :focus-visible) {
+  border-color: transparent;
+  color: var(--ink); /* ink on lime, also when the nav is dark */
+}
+
+.avail:is(:hover, :focus-visible) .avail-fill {
+  clip-path: inset(0 0 0 0);
+}
+
+.avail:is(:hover, :focus-visible) .avail-roll {
+  translate: 0 -50%;
+}
+
+.avail:is(:hover, :focus-visible) .avail-arrow {
+  translate: 3px 0;
+}
+
+.avail:active {
+  scale: 0.97;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avail-dot::after {
+    animation: none;
+  }
+
+  .avail,
+  .avail-fill,
+  .avail-roll,
+  .avail-arrow {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   Tool trail (cursor) — above content, below nav (40), dialogs (50/70) and cursor
+   ========================================================================== */
+
+.tool-trail {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.tool-trail-tile {
+  --tile: clamp(44px, 3.9vw, 64px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transform: translate3d(-200px, -200px, 0);
+  will-change: transform, opacity;
+}
+
+.tool-trail-face {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+}
+
+.tool-trail-face[hidden] {
+  display: none;
+}
+
+.tool-trail-box {
+  display: grid;
+  width: var(--tile);
+  height: var(--tile);
+  place-items: center;
+  border-radius: 14px;
+}
+
+/* Alternating looks: lime/black, ink/white, white/black with a 1px border. */
+.tool-trail-tile[data-look="0"] .tool-trail-box {
+  background: var(--lime);
+  color: #111111;
+}
+
+.tool-trail-tile[data-look="1"] .tool-trail-box {
+  background: #111111;
+  color: #ffffff;
+}
+
+.tool-trail-tile[data-look="2"] .tool-trail-box {
+  background: #ffffff;
+  color: #111111;
+  border: 1px solid #111111; /* border-box: tile size unchanged */
+}
+
+.tool-trail-glyph {
+  width: 46%;
+  height: 46%;
+}
+
+.tool-trail-mono {
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  font-size: calc(var(--tile) * 0.36);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.tool-trail-label {
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  font-size: 11px;
+  color: #111111;
+}
+
+/* ==========================================================================
+   Play rows (fanned arc of cards)
+   ========================================================================== */
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.play-scroller {
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+}
+
+.play-scroller[data-dragging] {
+  scroll-snap-type: none;
+  user-select: none;
+}
+
+/*
+ * Play zone — the only place with its own palette (fan strip + #play).
+ * Everything inside is sized from --w, the card width.
+ */
+.play-tokens,
+.play-zone {
+  --play-bg: #f7f5f2;
+  --play-ink: #32322e;
+  --frame-blue: #d5e7f5;
+  --frame-mint: #d0e7de;
+  --frame-peach: #f9d994;
+  --frame-green: #dcf1b5;
+  --frame-lavender: #eae8f0;
+  --w: clamp(220px, 62vw, 280px);
+}
+
+/* The cream band — Play/Exploration sections only (not the hero). */
+.play-zone {
+  background: var(--play-bg);
+  color: var(--play-ink);
+}
+
+@media (min-width: 768px) {
+  .play-zone {
+    --w: clamp(220px, 20vw, 380px);
+  }
+}
+
+/* ---------- Hero stage: normal flow, card row below hero content ---------- */
+
+.hero-stage {
+  background: var(--bg);
+  overflow-x: clip; /* rotated cards don't cause horizontal page scroll */
+}
+
+/* Bigger cards in the hero, matching the reference. */
+.hero-cards {
+  --w: clamp(200px, 62vw, 280px);
+}
+
+@media (min-width: 768px) {
+  .hero-cards {
+    --w: clamp(180px, 20vw, 380px);
+  }
+}
+
+/* 10dvh breathing room between the hero stage and Work. */
+.hero-stage + #work,
+.hero-stage + section {
+  margin-top: 10dvh;
+}
+
+/* Card: 1.43W tall, 0.08W radius, no border/shadow. */
+.play-card {
+  position: relative;
+  width: var(--w);
+  height: calc(var(--w) * 1.43);
+  border-radius: calc(var(--w) * 0.08);
+  color: var(--play-ink);
+}
+
+.play-media {
+  position: absolute;
+  top: calc(var(--w) * 0.053);
+  left: calc(var(--w) * 0.053);
+  right: calc(var(--w) * 0.053);
+  height: calc(var(--w) * 1.04);
+  border-radius: calc(var(--w) * 0.027);
+  overflow: hidden;
+}
+
+/* Title centred 0.18W below the media; category 0.08W below that. */
+.play-title,
+.play-cat {
+  position: absolute;
+  left: calc(var(--w) * 0.053);
+  right: calc(var(--w) * 0.053);
+  translate: 0 -50%;
+  margin: 0;
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  font-weight: 400;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.play-title {
+  top: calc(var(--w) * (0.053 + 1.04 + 0.18));
+  font-size: calc(var(--w) * 0.055);
+}
+
+.play-cat {
+  top: calc(var(--w) * (0.053 + 1.04 + 0.18 + 0.08));
+  font-size: calc(var(--w) * 0.041);
+  opacity: 0.75; /* 55% fails AA on every frame (~3:1); 75% passes */
+}
+
+/* Giant plum glyph, lower-left, slightly cropped. */
+.play-glyph {
+  position: absolute;
+  left: calc(var(--w) * -0.04);
+  bottom: calc(var(--w) * -0.2);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  font-weight: 800;
+  font-size: calc(var(--w) * 1.28);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--cover-plum);
+}
+
+/* Small white chip on a card's photo (e.g. "Available to download"). */
+.play-chip {
+  position: absolute;
+  top: calc(var(--w) * 0.09);
+  left: calc(var(--w) * 0.09);
+  z-index: 1;
+  border-radius: 999px;
+  background: #ffffff;
+  padding: calc(var(--w) * 0.018) calc(var(--w) * 0.04);
+  color: var(--play-ink);
+  font-size: max(11px, calc(var(--w) * 0.042));
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ---------- Exploration row ---------- */
+
+.expl-zone {
+  --w: clamp(220px, 24vw, 340px);
+}
+
+.expl-scroller {
+  overflow-x: clip;
+  touch-action: pan-y; /* vertical page scroll stays native; horizontal swipes drag the row */
+  /* Fade the row out at both screen edges. */
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+
+.expl-scroller[data-dragging] {
+  user-select: none;
+}
+
+.expl-item .play-card {
+  contain: layout;
+}
+
+/* Hover / keyboard focus widens the card W → 1.8W; height never changes. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .expl-item .play-card {
+    transition: width 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+  }
+
+  .expl-item:is(:hover, :focus-within) .play-card {
+    width: calc(var(--w) * 1.8);
+    will-change: width;
+  }
+}
+
+/* ---------- Hello card: tap-to-flip photo ---------- */
+
+.hello-flip {
+  display: block;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  background: transparent;
+  perspective: calc(var(--w) * 4);
+  overflow: visible; /* let the flip swing out a little */
+}
+
+.hello-flip-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.hello-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: calc(var(--w) * 0.027);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: opacity 0.2s ease;
+}
+
+.hello-face-back {
+  transform: rotateY(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hello-face-back {
+    transform: none; /* crossfade instead of flip */
+  }
+}
+
+.hello-chip {
+  position: absolute;
+  top: calc(var(--w) * 0.04);
+  left: calc(var(--w) * 0.04);
+  display: block;
+  height: calc(var(--w) * 0.075);
+  overflow: hidden;
+  border-radius: 999px;
+  background: #ffffff;
+  padding-inline: calc(var(--w) * 0.035);
+  color: var(--play-ink);
+  font-size: calc(var(--w) * 0.045);
+  font-weight: 500;
+  line-height: calc(var(--w) * 0.075);
+  pointer-events: none;
+}
+
+.hello-chip-roll {
+  display: flex;
+  flex-direction: column;
+  transition: translate 0.45s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* Folded bottom-right corner; grows on hover/focus as a flip hint. */
+.hello-peel {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: calc(var(--w) * 0.07);
+  height: calc(var(--w) * 0.07);
+  border-top-left-radius: calc(var(--w) * 0.02);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.18) 0 50%, var(--frame-peach) 50% 100%);
+  pointer-events: none;
+  transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1), height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hello-flip:is(:hover, :focus-visible) .hello-peel {
+  width: calc(var(--w) * 0.14);
+  height: calc(var(--w) * 0.14);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hello-chip-roll,
+  .hello-peel {
+    transition: none;
+  }
+}
+
+/* Scroll-driven tilt + drop (variables written by PlayRow). */
+.play-arc {
+  transform: translateY(var(--ty, 0px)) rotate(var(--rot, 0deg));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .badge-spin,
+  .clock-colon {
+    animation: none;
+  }
+
+  .badge:hover > div {
+    scale: 1;
+  }
+
+  /* Contact rows: instant colour change, no wipe or icon motion. */
+  .contact-row,
+  .contact-wipe,
+  .contact-icon,
+  .cw-stack {
+    transition: none;
+  }
+
+  .contact-row[data-enabled]:is(:hover, :has(:focus-visible)) .cw-stack {
+    translate: none;
+  }
+
+  .contact-stamp {
+    animation-name: contact-stamp-fade;
+  }
+
+  .contact-row[data-enabled]:is(:hover, :has(:focus-visible)) .contact-icon {
+    translate: none;
+    rotate: none;
+  }
+}
